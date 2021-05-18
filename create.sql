@@ -1,4 +1,5 @@
 # GITHUB : https://github.com/dotpinheiro/BD01
+
 CREATE DATABASE marketplace;
 USE marketplace;
 
@@ -11,19 +12,21 @@ CREATE TABLE tb_usuarios(
 
 CREATE TABLE tb_usuarios_vendedores(
     usuario_id_fk INT,
-    cnpj INT(14) UNIQUE NOT NULL,
+    cnpj BIGINT UNIQUE NOT NULL,
     nome_fantasia VARCHAR(255),
     razao_social VARCHAR(255) NOT NULL,
-    FOREIGN KEY (usuario_id_fk) REFERENCES tb_usuarios(id)
+    FOREIGN KEY (usuario_id_fk) REFERENCES tb_usuarios(id),
+    PRIMARY KEY(usuario_id_fk)
 );
 
 CREATE TABLE tb_usuarios_compradores(
     usuario_id_fk INT,
-    cpf INT(11) UNIQUE NOT NULL,
+    cpf BIGINT UNIQUE NOT NULL,
     nome VARCHAR(255) NOT NULL,
     rg VARCHAR(10) NOT NULL,
     sexo ENUM('m','f') NOT NULL,
-    FOREIGN KEY (usuario_id_fk) REFERENCES tb_usuarios(id)
+    FOREIGN KEY (usuario_id_fk) REFERENCES tb_usuarios(id),
+    PRIMARY KEY (usuario_id_fk)
 );
 
 CREATE TABLE tb_estados(
@@ -68,6 +71,7 @@ CREATE TABLE tb_pedidos(
     FOREIGN KEY (comprador_id_fk) REFERENCES tb_usuarios(id)
 );
 
+
 CREATE TABLE tb_notas_fiscais(
     id INT PRIMARY KEY AUTO_INCREMENT,
     sequencia INT NOT NULL,
@@ -79,15 +83,23 @@ CREATE TABLE tb_notas_fiscais(
 
 CREATE TABLE tb_produtos_estoque(
     id INT PRIMARY KEY AUTO_INCREMENT,
-    qtde INT,
-    tipo_movimentacao enum('entrada','saida','balanco')
+    posicao VARCHAR(255)    
 );
+
+ CREATE TABLE tb_estoque_movimentacao(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    estoque_id_fk INT,
+    qtde INT,
+    tipo_movimentacao enum('entrada','saida','balanco'),
+    FOREIGN KEY (estoque_id_fk) REFERENCES tb_produtos_estoque(id)
+ );
 
 CREATE TABLE tb_produtos(
     id INT PRIMARY KEY AUTO_INCREMENT,
     titulo VARCHAR(255),
     descricao TEXT,
     valor DECIMAL(20,2),
+    tipo ENUM('produto', 'variacao'),
     estoque_id_fk INT,
     vendedor_id_fk INT,
     FOREIGN KEY (estoque_id_fk) REFERENCES tb_produtos_estoque(id),
@@ -116,6 +128,16 @@ CREATE TABLE tb_produtos_variacoes(
     FOREIGN KEY (cor_id_fk) REFERENCES tb_produtos_cores(id),
     FOREIGN KEY (tamanho_id_fk) REFERENCES tb_produtos_tamanhos(id),
     FOREIGN KEY (estoque_id_fk) REFERENCES tb_produtos_estoque(id)
+);
+
+CREATE TABLE tb_pedidos_itens(
+	produto_id_fk INT,
+    variacao_id_fk INT,
+    pedido_id_fk INT,
+    PRIMARY KEY (pedido_id_fk, produto_id_fk),
+	FOREIGN KEY (produto_id_fk) REFERENCES tb_produtos(id),
+    FOREIGN KEY (pedido_id_fk) REFERENCES tb_pedidos(numero),
+    FOREIGN KEY (variacao_id_fk) REFERENCES tb_produtos_variacoes(id)
 );
 
 
